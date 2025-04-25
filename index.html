@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Mapa de Vulnerabilidad ante Inundaciones y Cobertura Vial Operativa</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/LmiteMunicipaldeZapopan_2.js"></script>
+        <script src="data/Vulnerabilidadfisicadeinundaciones_3.js"></script>
+        <script src="data/Corredor_4.js"></script>
+        <script src="data/Crucero_5.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:27, minZoom:1
+        }).fitBounds([[20.655441575500312,-103.63112409641536],[20.915627183589454,-103.27087555839101]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>Mapa de Vulnerabilidad ante Inundaciones y Cobertura Vial Operativa</h2>';
+        };
+        title.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'feet',
+            secondaryLengthUnit: 'miles',
+            primaryAreaUnit: 'sqfeet',
+            secondaryAreaUnit: 'sqmiles'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_dem_0');
+        map.getPane('pane_dem_0').style.zIndex = 400;
+        var img_dem_0 = 'data/dem_0.png';
+        var img_bounds_dem_0 = [[20.581709985496484,-103.66863969885937],[21.001340336873405,-103.301744537105]];
+        var layer_dem_0 = new L.imageOverlay(img_dem_0,
+                                              img_bounds_dem_0,
+                                              {pane: 'pane_dem_0'});
+        bounds_group.addLayer(layer_dem_0);
+        map.addLayer(layer_dem_0);
+        map.createPane('pane_CartoLight_1');
+        map.getPane('pane_CartoLight_1').style.zIndex = 401;
+        var layer_CartoLight_1 = L.tileLayer('https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.pn', {
+            pane: 'pane_CartoLight_1',
+            opacity: 0.816,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 27,
+        });
+        layer_CartoLight_1;
+        map.addLayer(layer_CartoLight_1);
+        function pop_LmiteMunicipaldeZapopan_2(feature, layer) {
+            var popupContent = '<table>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LmiteMunicipaldeZapopan_2_0() {
+            return {
+                pane: 'pane_LmiteMunicipaldeZapopan_2',
+                opacity: 1,
+                color: 'rgba(52,52,52,0.6470588235294118)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        function style_LmiteMunicipaldeZapopan_2_1() {
+            return {
+                pane: 'pane_LmiteMunicipaldeZapopan_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.9882352941176471)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,255,0.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_LmiteMunicipaldeZapopan_2');
+        map.getPane('pane_LmiteMunicipaldeZapopan_2').style.zIndex = 402;
+        map.getPane('pane_LmiteMunicipaldeZapopan_2').style['mix-blend-mode'] = 'normal';
+        var layer_LmiteMunicipaldeZapopan_2 = new L.geoJson.multiStyle(json_LmiteMunicipaldeZapopan_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LmiteMunicipaldeZapopan_2',
+            layerName: 'layer_LmiteMunicipaldeZapopan_2',
+            pane: 'pane_LmiteMunicipaldeZapopan_2',
+            onEachFeature: pop_LmiteMunicipaldeZapopan_2,
+            styles: [style_LmiteMunicipaldeZapopan_2_0,style_LmiteMunicipaldeZapopan_2_1,]
+        });
+        bounds_group.addLayer(layer_LmiteMunicipaldeZapopan_2);
+        map.addLayer(layer_LmiteMunicipaldeZapopan_2);
+        function pop_Vulnerabilidadfisicadeinundaciones_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(String(feature.properties['fid']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Vulnerabil'] !== null ? autolinker.link(String(feature.properties['Vulnerabil']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Superficie'] !== null ? autolinker.link(String(feature.properties['Superficie']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Fuente'] !== null ? autolinker.link(String(feature.properties['Fuente']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Vulnerabilidadfisicadeinundaciones_3_0(feature) {
+            switch(String(feature.properties['Vulnerabil'])) {
+                case 'Muy alto':
+                    return {
+                pane: 'pane_Vulnerabilidadfisicadeinundaciones_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(8,81,156,1.0)',
+                interactive: false,
+            }
+                    break;
+                case 'Alto':
+                    return {
+                pane: 'pane_Vulnerabilidadfisicadeinundaciones_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(49,130,189,1.0)',
+                interactive: false,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Vulnerabilidadfisicadeinundaciones_3');
+        map.getPane('pane_Vulnerabilidadfisicadeinundaciones_3').style.zIndex = 403;
+        map.getPane('pane_Vulnerabilidadfisicadeinundaciones_3').style['mix-blend-mode'] = 'normal';
+        var layer_Vulnerabilidadfisicadeinundaciones_3 = new L.geoJson(json_Vulnerabilidadfisicadeinundaciones_3, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Vulnerabilidadfisicadeinundaciones_3',
+            layerName: 'layer_Vulnerabilidadfisicadeinundaciones_3',
+            pane: 'pane_Vulnerabilidadfisicadeinundaciones_3',
+            onEachFeature: pop_Vulnerabilidadfisicadeinundaciones_3,
+            style: style_Vulnerabilidadfisicadeinundaciones_3_0,
+        });
+        bounds_group.addLayer(layer_Vulnerabilidadfisicadeinundaciones_3);
+        map.addLayer(layer_Vulnerabilidadfisicadeinundaciones_3);
+        function pop_Corredor_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Corredor</th>\
+                        <td class="visible-with-data" id="Corredor">' + (feature.properties['Corredor'] !== null ? autolinker.link(String(feature.properties['Corredor']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Corredor_4_0() {
+            return {
+                pane: 'pane_Corredor_4',
+                opacity: 1,
+                color: 'rgba(112,219,30,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Corredor_4');
+        map.getPane('pane_Corredor_4').style.zIndex = 404;
+        map.getPane('pane_Corredor_4').style['mix-blend-mode'] = 'normal';
+        var layer_Corredor_4 = new L.geoJson(json_Corredor_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Corredor_4',
+            layerName: 'layer_Corredor_4',
+            pane: 'pane_Corredor_4',
+            onEachFeature: pop_Corredor_4,
+            style: style_Corredor_4_0,
+        });
+        bounds_group.addLayer(layer_Corredor_4);
+        map.addLayer(layer_Corredor_4);
+        function pop_Crucero_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Descripción</th>\
+                        <td class="visible-with-data" id="Descripción">' + (feature.properties['Descripción'] !== null ? autolinker.link(String(feature.properties['Descripción']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Crucero_5_0() {
+            return {
+                pane: 'pane_Crucero_5',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Crucero_5.svg',
+            iconSize: [35.72, 35.72]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Crucero_5');
+        map.getPane('pane_Crucero_5').style.zIndex = 405;
+        map.getPane('pane_Crucero_5').style['mix-blend-mode'] = 'normal';
+        var layer_Crucero_5 = new L.geoJson(json_Crucero_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Crucero_5',
+            layerName: 'layer_Crucero_5',
+            pane: 'pane_Crucero_5',
+            onEachFeature: pop_Crucero_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_Crucero_5_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Crucero_5);
+        map.addLayer(layer_Crucero_5);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var overlaysTree = [
+            {label: '<img src="legend/Crucero_5.png" /> Crucero', layer: layer_Crucero_5},
+            {label: '<img src="legend/Corredor_4.png" /> Corredor', layer: layer_Corredor_4},
+            {label: 'Vulnerabilidad fisica de inundaciones<br /><table><tr><td style="text-align: center;"><img src="legend/Vulnerabilidadfisicadeinundaciones_3_Muyalto0.png" /></td><td>Muy alto</td></tr><tr><td style="text-align: center;"><img src="legend/Vulnerabilidadfisicadeinundaciones_3_Alto1.png" /></td><td>Alto</td></tr></table>', layer: layer_Vulnerabilidadfisicadeinundaciones_3},
+            {label: '<img src="legend/LmiteMunicipaldeZapopan_2.png" /> Límite Municipal de Zapopan', layer: layer_LmiteMunicipaldeZapopan_2},
+            {label: "Carto Light", layer: layer_CartoLight_1, radioGroup: 'bm' },
+            {label: "dem", layer: layer_dem_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_Crucero_5,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'Descripción'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        resetLabels([layer_Crucero_5]);
+        map.on("zoomend", function(){
+            resetLabels([layer_Crucero_5]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_Crucero_5]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_Crucero_5]);
+        });
+        </script>
+    </body>
+</html>
